@@ -2,9 +2,7 @@ import express from 'express'
 import path from 'path'
 import favicon from 'serve-favicon'
 import dotenv from 'dotenv'
-
-// import the router from your routes file
-
+import pizzeriaRouter from './routes/pizzeria.js'
 
 dotenv.config()
 
@@ -15,16 +13,16 @@ const app = express()
 app.use(express.json())
 
 if (process.env.NODE_ENV === 'development') {
-    app.use(favicon(path.resolve('../', 'client', 'public', 'lightning.png')))
+    app.use(favicon(path.resolve('../', 'client', 'public', 'pizza.png')))
 }
 else if (process.env.NODE_ENV === 'production') {
-    app.use(favicon(path.resolve('public', 'lightning.png')))
+    app.use(favicon(path.resolve('public', 'pizza.png')))
     app.use(express.static('public'))
 }
 
+app.use('/api/pizzas', pizzeriaRouter)
+
 // specify the api path for the server to use
-
-
 if (process.env.NODE_ENV === 'production') {
     app.get('/*', (_, res) =>
         res.sendFile(path.resolve('public', 'index.html'))

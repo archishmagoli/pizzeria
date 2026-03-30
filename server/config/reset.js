@@ -7,7 +7,6 @@ const createTableQuery = `
     CREATE TABLE IF NOT EXISTS pizzeria (
         id SERIAL PRIMARY KEY,
         name VARCHAR(255) NOT NULL,
-        image VARCHAR(255) NOT NULL,
         customInstructions TEXT NOT NULL,
         details jsonb NOT NULL
     )

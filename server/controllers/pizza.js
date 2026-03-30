@@ -13,7 +13,7 @@ const getPizzas = async (req, res) => {
     }
 }
 
-const getPizza = async (req, res) => {
+const getPizzaById = async (req, res) => {
     try {
         const { pizzaId } = req.params;
         const results = await pool.query('SELECT * FROM pizzeria WHERE id = $1', [pizzaId]);
@@ -26,16 +26,33 @@ const getPizza = async (req, res) => {
     }
 }
 
+const createPizza = async (req, res) => {
+  try {
+      const { name, customInstructions, details } = req.body
+      const results = await pool.query(`
+          INSERT INTO pizzeria (name, customInstructions, details)
+          VALUES($1, $2, $3)
+          RETURNING *`,
+          [name, customInstructions, details]
+      )
+
+      res.status(201).json(results.rows[0])
+  } catch (error) {
+      res.status(409).json( { error: error.message } )
+  }
+}
+
 const updatePizza = async (req, res) => {
     try {
         const pizzaId = parseInt(req.params.id)
-        const {
-            name,
-            image,
-            customInstructions,
-            details
-        } = req.body
-        
+        const { name, customInstructions, details } = req.body
+
+        const results = await pool.query(`
+            UPDATE pizzeria SET name = $1, customInstructions = $2, details = $3 WHERE id = $4`,
+            [name, customInstructions, details, pizzaId]
+        )
+
+        res.status(200).json(results.rows[0])
     } catch (error) {
         res.status(409).json({ error: error.message });
     }
@@ -56,6 +73,8 @@ const deletePizza = async (req, res) => {
 
 export default {
     getPizzas,
-    getPizza,
-    deletePizza
+    getPizzaById,
+    deletePizza,
+    updatePizza,
+    createPizza
 };
