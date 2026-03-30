@@ -28,7 +28,7 @@ const getPizzaById = async (req, res) => {
 
 const createPizza = async (req, res) => {
   try {
-      const { name, customInstructions, details } = req.body
+      const { name, customInstructions = '', details } = req.body
       const results = await pool.query(`
           INSERT INTO pizzeria (name, customInstructions, details)
           VALUES($1, $2, $3)
@@ -45,7 +45,7 @@ const createPizza = async (req, res) => {
 const updatePizza = async (req, res) => {
     try {
         const pizzaId = parseInt(req.params.id)
-        const { name, customInstructions, details } = req.body
+        const { name, customInstructions = '', details } = req.body
 
         const results = await pool.query(`
             UPDATE pizzeria SET name = $1, customInstructions = $2, details = $3 WHERE id = $4 RETURNING *`,

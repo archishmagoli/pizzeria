@@ -4,7 +4,7 @@ Submitted by: **Archie Goli**
 
 About this web app: **Archie's Pizzeria - Create Your Own Pizza!**
 
-Time spent: **X** hours
+Time spent: **5** hours
 
 ## Required Features
 
@@ -27,6 +27,9 @@ The following **required** functionality is completed:
 
 The following **optional** features are implemented:
 - [X] Selecting particular options prevents incompatible options from being selected even before form submission
+
+The following **additional** features are implemented:
+- [X] The project is deployed using Render and accessible via URL: [Project URL](https://pizzeria-r0ux.onrender.com/custompizzas)
 
 ## Video Walkthrough
 Here's a walkthrough of implemented required features: [Video Link]()
