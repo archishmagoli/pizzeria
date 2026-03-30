@@ -101,7 +101,7 @@ const PizzaVisual = ({ details, size = 300 }) => {
                     position: 'absolute',
                     top: pos.top,
                     left: pos.left,
-                    fontSize: '1.4rem',
+                    fontSize: `${size * 0.1}px`,
                     lineHeight: 1,
                     userSelect: 'none',
                 }}>

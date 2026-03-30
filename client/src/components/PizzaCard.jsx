@@ -1,6 +1,7 @@
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { calculatePrice } from '../utils/pricing'
 import PizzaVisual from './PizzaVisual'
+import more from './more.png'
 import '../css/PizzaCard.css'
 
 const PizzaCard = ({ pizza, onDelete }) => {
@@ -27,7 +28,10 @@ const PizzaCard = ({ pizza, onDelete }) => {
     const toppings = pizza.details?.toppings ?? []
 
     return (
-        <div className='pizza-card'>
+        <div className='pizza-card' style={{ position: 'relative' }}>
+            <Link to={`/custompizzas/${pizza.id}`} style={{ position: 'absolute', top: '0.75rem', left: '0.75rem' }}>
+                <img src={more} alt='more' title='View details' style={{ width: 32, height: 32 }} />
+            </Link>
             <PizzaVisual details={pizza.details} size={150} />
             <h3>{pizza.name}</h3>
             <p><strong>Type:</strong> {pizza.details?.pizzaType}</p>

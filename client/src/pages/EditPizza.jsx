@@ -14,6 +14,7 @@ const EditPizza = () => {
     const { id } = useParams()
     const navigate = useNavigate()
     const [step, setStep] = useState(0)
+    const [loading, setLoading] = useState(true)
     const [pizza, setPizza] = useState({
         name: '',
         customInstructions: '',
@@ -32,6 +33,7 @@ const EditPizza = () => {
             const response = await fetch(`/api/pizzas/${id}`)
             const data = await response.json()
             setPizza(data)
+            setLoading(false)
         }
         fetchPizzaById()
     }, [id])
@@ -240,6 +242,8 @@ const EditPizza = () => {
             default: return null
         }
     }
+
+    if (loading) return <div style={{ textAlign: 'center', marginTop: '3rem' }}><p>Loading...</p></div>
 
     return (
         <div className='EditPizza'>

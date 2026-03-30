@@ -48,7 +48,7 @@ const updatePizza = async (req, res) => {
         const { name, customInstructions, details } = req.body
 
         const results = await pool.query(`
-            UPDATE pizzeria SET name = $1, customInstructions = $2, details = $3 WHERE id = $4`,
+            UPDATE pizzeria SET name = $1, customInstructions = $2, details = $3 WHERE id = $4 RETURNING *`,
             [name, customInstructions, details, pizzaId]
         )
 
@@ -60,8 +60,8 @@ const updatePizza = async (req, res) => {
 
 const deletePizza = async (req, res) => {
     try {
-        const { pizzaId } = req.params;
-        const results = await pool.query('DELETE FROM pizzeria WHERE id = $1', [pizzaId]);
+        const { id } = req.params;
+        const results = await pool.query('DELETE FROM pizzeria WHERE id = $1 RETURNING *', [id]);
         if (results.rows.length === 0) {
             return res.status(404).json({ error: 'Pizza not found' });
         }

@@ -4,6 +4,7 @@ import '../App.css'
 
 const ViewPizzas = () => {
     const [pizzas, setPizzas] = useState([])
+    const [loading, setLoading] = useState(true)
 
     useEffect(() => {
         const fetchPizzas = async () => {
@@ -13,6 +14,8 @@ const ViewPizzas = () => {
                 setPizzas(data)
             } catch (error) {
                 alert('Failed to load pizzas.')
+            } finally {
+                setLoading(false)
             }
         }
 
@@ -26,7 +29,9 @@ const ViewPizzas = () => {
     return (
         <div className='view-pizzas'>
             <center><h2>Custom Pizzas</h2></center>
-            {pizzas.length === 0
+            {loading
+                ? <p>Loading...</p>
+                : pizzas.length === 0
                 ? <p>No pizzas yet. <a href='/'>Create one!</a></p>
                 : <div className='pizza-grid'>
                     {pizzas.map((pizza) => (
