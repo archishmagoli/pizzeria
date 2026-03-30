@@ -1,15 +1,19 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import '../css/EditPizza.css'
+import '../css/Carousel.css'
 import { calculatePrice } from '../utils/pricing'
+import PizzaVisual from '../components/PizzaVisual'
 
 const MEAT_TOPPINGS = ['pepperoni', 'sausage', 'bacon', 'chicken', 'ham', 'ground beef', 'anchovies']
 const VEGGIE_TOPPINGS = ['mushrooms', 'peppers', 'olives', 'spinach', 'onions', 'tomatoes', 'jalapeños', 'artichokes']
 
-const EditPizza = () => {
+const STEPS = ['Name', 'Pizza Type', 'Toppings', 'Size', 'Crust', 'Sauce', 'Cheese', 'Instructions']
 
+const EditPizza = () => {
     const { id } = useParams()
     const navigate = useNavigate()
+    const [step, setStep] = useState(0)
     const [pizza, setPizza] = useState({
         name: '',
         customInstructions: '',
@@ -29,7 +33,6 @@ const EditPizza = () => {
             const data = await response.json()
             setPizza(data)
         }
-
         fetchPizzaById()
     }, [id])
 
@@ -45,11 +48,7 @@ const EditPizza = () => {
         const pizzaType = event.target.value
         setPizza((prev) => ({
             ...prev,
-            details: {
-                ...prev.details,
-                pizzaType,
-                toppings: []
-            }
+            details: { ...prev.details, pizzaType, toppings: [] }
         }))
     }
 
@@ -80,8 +79,27 @@ const EditPizza = () => {
         return false
     }
 
-    const updatePizza = async (event) => {
-        event.preventDefault()
+    const updatePizza = async () => {
+        const { pizzaType, toppings } = pizza.details
+
+        if (!pizza.name.trim()) {
+            alert('Please give your pizza a name.')
+            setStep(0)
+            return
+        }
+
+        const hasMeat = toppings.some((t) => MEAT_TOPPINGS.includes(t))
+        const hasVeggie = toppings.some((t) => VEGGIE_TOPPINGS.includes(t))
+
+        if (pizzaType === 'vegetarian' && hasMeat) {
+            alert('A vegetarian pizza cannot have meat toppings.')
+            return
+        }
+        if (pizzaType === 'meatLovers' && hasVeggie) {
+            alert('A meat lovers pizza cannot have veggie toppings.')
+            return
+        }
+
         try {
             const response = await fetch(`/api/pizzas/${id}`, {
                 method: 'PATCH',
@@ -92,148 +110,167 @@ const EditPizza = () => {
                     customInstructions: pizza.customInstructions
                 })
             })
-
             if (!response.ok) {
                 const err = await response.json()
                 alert(`Error: ${err.error}`)
                 return
             }
-
             await response.json()
             alert(`Pizza "${pizza.name}" updated successfully!`)
             navigate('/custompizzas')
         } catch (error) {
-            alert('Sorry, an unexpected error occurred. Please try again.');
-        } 
+            alert('Sorry, an unexpected error occurred. Please try again.')
+        }
     }
 
-    const deletePizza = async (event) => {
-        event.preventDefault()
+    const deletePizza = async () => {
+        if (!confirm(`Delete "${pizza.name}"?`)) return
         try {
             const response = await fetch(`/api/pizzas/${id}`, {
                 method: 'DELETE',
                 headers: { 'Content-Type': 'application/json' },
             })
-
             if (!response.ok) {
                 const err = await response.json()
                 alert(`Error: ${err.error}`)
                 return
             }
-
             await response.json()
             alert(`Pizza "${pizza.name}" deleted successfully!`)
             navigate('/custompizzas')
         } catch (error) {
-            alert('Sorry, an unexpected error occurred. Please try again.');
-        } 
+            alert('Sorry, an unexpected error occurred. Please try again.')
+        }
+    }
+
+    const renderStep = () => {
+        switch (step) {
+            case 0: return (
+                <div>
+                    <h3>Name your pizza</h3>
+                    <input type='text' value={pizza.name} onChange={handleNameChange} placeholder='e.g. The Archie Special' />
+                </div>
+            )
+            case 1: return (
+                <div>
+                    <h3>Pizza Type</h3>
+                    {['custom', 'vegetarian', 'meatLovers'].map((type) => (
+                        <div key={type}>
+                            <input type="radio" id={type} name="pizzaType" value={type} checked={pizza.details.pizzaType === type} onChange={handlePizzaTypeChange} />
+                            <label htmlFor={type}>{type === 'meatLovers' ? 'Meat Lovers' : type.charAt(0).toUpperCase() + type.slice(1)}</label>
+                        </div>
+                    ))}
+                </div>
+            )
+            case 2: return (
+                <div>
+                    <h3>Toppings</h3>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 2rem' }}>
+                        <div>
+                            <strong>Meat</strong>
+                            {MEAT_TOPPINGS.map((topping) => (
+                                <div key={topping}>
+                                    <input type="checkbox" id={topping} value={topping} checked={pizza.details.toppings.includes(topping)} disabled={isDisabled(topping)} onChange={handleToppingChange} />
+                                    <label htmlFor={topping}>{topping}</label>
+                                </div>
+                            ))}
+                        </div>
+                        <div>
+                            <strong>Veggie</strong>
+                            {VEGGIE_TOPPINGS.map((topping) => (
+                                <div key={topping}>
+                                    <input type="checkbox" id={topping} value={topping} checked={pizza.details.toppings.includes(topping)} disabled={isDisabled(topping)} onChange={handleToppingChange} />
+                                    <label htmlFor={topping}>{topping}</label>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            )
+            case 3: return (
+                <div>
+                    <h3>Size</h3>
+                    {['small', 'medium', 'large'].map((s) => (
+                        <div key={s}>
+                            <input type="radio" id={s} name="size" value={s} checked={pizza.details.size === s} onChange={handleDetailChange} />
+                            <label htmlFor={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</label>
+                        </div>
+                    ))}
+                </div>
+            )
+            case 4: return (
+                <div>
+                    <h3>Crust</h3>
+                    {[['thin', 'Thin'], ['thick', 'Thick'], ['stuffed', 'Stuffed'], ['glutenFree', 'Gluten-Free']].map(([val, label]) => (
+                        <div key={val}>
+                            <input type="radio" id={val} name="crust" value={val} checked={pizza.details.crust === val} onChange={handleDetailChange} />
+                            <label htmlFor={val}>{label}</label>
+                        </div>
+                    ))}
+                </div>
+            )
+            case 5: return (
+                <div>
+                    <h3>Sauce</h3>
+                    {[['tomato', 'Tomato'], ['white', 'White'], ['bbq', 'BBQ'], ['pesto', 'Pesto']].map(([val, label]) => (
+                        <div key={val}>
+                            <input type="radio" id={val} name="sauce" value={val} checked={pizza.details.sauce === val} onChange={handleDetailChange} />
+                            <label htmlFor={val}>{label}</label>
+                        </div>
+                    ))}
+                </div>
+            )
+            case 6: return (
+                <div>
+                    <h3>Cheese Level</h3>
+                    {[['none', 'None'], ['light', 'Light'], ['regular', 'Regular'], ['extra', 'Extra']].map(([val, label]) => (
+                        <div key={val}>
+                            <input type="radio" id={val} name="cheeseLevel" value={val} checked={pizza.details.cheeseLevel === val} onChange={handleDetailChange} />
+                            <label htmlFor={val}>{label}</label>
+                        </div>
+                    ))}
+                </div>
+            )
+            case 7: return (
+                <div>
+                    <h3>Custom Instructions</h3>
+                    <textarea rows='4' cols='40' value={pizza.customInstructions} onChange={handleInstructionsChange} placeholder='e.g. extra crispy, cut into squares...' />
+                </div>
+            )
+            default: return null
+        }
     }
 
     return (
         <div className='EditPizza'>
-            <form>
-                <label><h3>Name</h3></label>
-                <input type='text' id='name' name='name' value={pizza.name} onChange={handleNameChange} /><br />
-                <br />
+            <center><h2>Edit Your Pizza</h2></center>
 
-                <label><h3>Select Pizza Type</h3></label>
-                <div>
-                    <div>
-                        <input type="radio" id="custom" name="pizzaType" value="custom" checked={pizza.details.pizzaType === 'custom'} onChange={handlePizzaTypeChange} />
-                        <label htmlFor="custom">Custom</label>
-                    </div>
-                    <div>
-                        <input type="radio" id="vegetarian" name="pizzaType" value="vegetarian" checked={pizza.details.pizzaType === 'vegetarian'} onChange={handlePizzaTypeChange} />
-                        <label htmlFor="vegetarian">Vegetarian</label>
-                    </div>
-                    <div>
-                        <input type="radio" id="meatLovers" name="pizzaType" value="meatLovers" checked={pizza.details.pizzaType === 'meatLovers'} onChange={handlePizzaTypeChange} />
-                        <label htmlFor="meatLovers">Meat Lovers</label>
-                    </div>
+            <PizzaVisual details={pizza.details} />
+
+            <div className='carousel'>
+                <div className='step-indicator'>
+                    {STEPS.map((s, i) => (
+                        <span key={s} className={`step-dot ${i === step ? 'active' : ''} ${i < step ? 'done' : ''}`} onClick={() => setStep(i)} />
+                    ))}
                 </div>
-                <br />
 
-                <label><h3>Toppings</h3></label>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0 2rem' }}>
-                    <div>
-                        <strong>Meat</strong>
-                        {MEAT_TOPPINGS.map((topping) => (
-                            <div key={topping}>
-                                <input
-                                    type="checkbox"
-                                    id={topping}
-                                    value={topping}
-                                    checked={pizza.details.toppings.includes(topping)}
-                                    disabled={isDisabled(topping)}
-                                    onChange={handleToppingChange}
-                                />
-                                <label htmlFor={topping}>{topping}</label>
-                            </div>
-                        ))}
-                    </div>
-                    <div>
-                        <strong>Veggie</strong>
-                        {VEGGIE_TOPPINGS.map((topping) => (
-                            <div key={topping}>
-                                <input
-                                    type="checkbox"
-                                    id={topping}
-                                    value={topping}
-                                    checked={pizza.details.toppings.includes(topping)}
-                                    disabled={isDisabled(topping)}
-                                    onChange={handleToppingChange}
-                                />
-                                <label htmlFor={topping}>{topping}</label>
-                            </div>
-                        ))}
-                    </div>
+                <div className='step-content'>
+                    {renderStep()}
                 </div>
-                <br />
 
-                <label><h3>Size</h3></label>
-                <select name="size" value={pizza.details.size} onChange={handleDetailChange}>
-                    <option value="small">Small</option>
-                    <option value="medium">Medium</option>
-                    <option value="large">Large</option>
-                </select>
-                <br /><br />
+                <div className='carousel-nav'>
+                    <button onClick={() => setStep((s) => s - 1)} disabled={step === 0}>← Back</button>
+                    <span>{STEPS[step]} ({step + 1}/{STEPS.length})</span>
+                    {step < STEPS.length - 1
+                        ? <button onClick={() => setStep((s) => s + 1)}>Next →</button>
+                        : <button onClick={updatePizza}>Save — ${calculatePrice(pizza.details)}</button>
+                    }
+                </div>
 
-                <label><h3>Crust</h3></label>
-                <select name="crust" value={pizza.details.crust} onChange={handleDetailChange}>
-                    <option value="thin">Thin</option>
-                    <option value="thick">Thick</option>
-                    <option value="stuffed">Stuffed</option>
-                    <option value="glutenFree">Gluten-Free</option>
-                </select>
-                <br /><br />
-
-                <label><h3>Sauce</h3></label>
-                <select name="sauce" value={pizza.details.sauce} onChange={handleDetailChange}>
-                    <option value="tomato">Tomato</option>
-                    <option value="white">White</option>
-                    <option value="bbq">BBQ</option>
-                    <option value="pesto">Pesto</option>
-                </select>
-                <br /><br />
-
-                <label><h3>Cheese Level</h3></label>
-                <select name="cheeseLevel" value={pizza.details.cheeseLevel} onChange={handleDetailChange}>
-                    <option value="none">None</option>
-                    <option value="light">Light</option>
-                    <option value="regular">Regular</option>
-                    <option value="extra">Extra</option>
-                </select>
-                <br /><br />
-
-                <label><h3>Custom Instructions</h3></label>
-                <textarea rows='5' cols='50' id='customInstructions' name='customInstructions' value={pizza.customInstructions} onChange={handleInstructionsChange}></textarea>
-                <br />
-
-                <h3>Total: ${calculatePrice(pizza.details)}</h3>
-
-                <input className='submitButton' type='submit' value='Submit' onClick={updatePizza} />
-                <button className='deleteButton' onClick={deletePizza}>Delete</button>
-            </form>
+                <div style={{ textAlign: 'center', marginTop: '1rem' }}>
+                    <button className='deleteButton' onClick={deletePizza}>Delete Pizza</button>
+                </div>
+            </div>
         </div>
     )
 }

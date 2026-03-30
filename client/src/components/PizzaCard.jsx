@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { calculatePrice } from '../utils/pricing'
+import PizzaVisual from './PizzaVisual'
 import '../css/PizzaCard.css'
 
 const PizzaCard = ({ pizza, onDelete }) => {
@@ -27,6 +28,7 @@ const PizzaCard = ({ pizza, onDelete }) => {
 
     return (
         <div className='pizza-card'>
+            <PizzaVisual details={pizza.details} size={150} />
             <h3>{pizza.name}</h3>
             <p><strong>Type:</strong> {pizza.details?.pizzaType}</p>
             <p><strong>Size:</strong> {pizza.details?.size} | <strong>Crust:</strong> {pizza.details?.crust}</p>

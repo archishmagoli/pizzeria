@@ -21,7 +21,10 @@ label {
 
 .CreatePizza {
     padding: 1rem;
+    max-width: 500px;
+    margin: 0 auto;
 }
+
 
 textarea {
     border-radius: 8px;
