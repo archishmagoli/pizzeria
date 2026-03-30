@@ -1,7 +1,7 @@
 import React from 'react'
 import '../App.css'
 
-const CarDetails = () => {
+const PizzaDetails = () => {
 
     return (
         <div>
@@ -10,4 +10,4 @@ const CarDetails = () => {
     )
 }
 
-export default CarDetails
+export default PizzaDetails

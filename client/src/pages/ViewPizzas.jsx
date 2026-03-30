@@ -1,13 +1,13 @@
 import React from 'react'
 import '../App.css'
 
-const CreateCar = () => {
-
+const ViewPizzas = () => {
+    
     return (
         <div>
-
+            
         </div>
     )
 }
 
-export default CreateCar
+export default ViewPizzas
