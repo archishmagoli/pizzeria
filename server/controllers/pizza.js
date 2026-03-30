@@ -1,7 +1,7 @@
 import { pool } from '../config/database.js';
 
 const selectTableQuery = `
-    SELECT * FROM pizzeria;
+    SELECT id, name, custominstructions AS "customInstructions", details FROM pizzeria;
 `;
 
 const getPizzas = async (req, res) => {
@@ -16,7 +16,7 @@ const getPizzas = async (req, res) => {
 const getPizzaById = async (req, res) => {
     try {
         const { pizzaId } = req.params;
-        const results = await pool.query('SELECT * FROM pizzeria WHERE id = $1', [pizzaId]);
+        const results = await pool.query('SELECT id, name, custominstructions AS "customInstructions", details FROM pizzeria WHERE id = $1', [pizzaId]);
         if (results.rows.length === 0) {
             return res.status(404).json({ error: 'Pizza not found' });
         }
