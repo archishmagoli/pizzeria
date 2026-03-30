@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import '../css/EditPizza.css'
+import { calculatePrice } from '../utils/pricing'
 
 const MEAT_TOPPINGS = ['pepperoni', 'sausage', 'bacon', 'chicken', 'ham', 'ground beef', 'anchovies']
 const VEGGIE_TOPPINGS = ['mushrooms', 'peppers', 'olives', 'spinach', 'onions', 'tomatoes', 'jalapeños', 'artichokes']
@@ -8,12 +9,17 @@ const VEGGIE_TOPPINGS = ['mushrooms', 'peppers', 'olives', 'spinach', 'onions', 
 const EditPizza = () => {
 
     const { id } = useParams()
+    const navigate = useNavigate()
     const [pizza, setPizza] = useState({
         name: '',
         customInstructions: '',
         details: {
             pizzaType: 'custom',
-            toppings: []
+            toppings: [],
+            size: 'medium',
+            crust: 'thin',
+            sauce: 'tomato',
+            cheeseLevel: 'regular'
         }
     })
 
@@ -40,9 +46,18 @@ const EditPizza = () => {
         setPizza((prev) => ({
             ...prev,
             details: {
+                ...prev.details,
                 pizzaType,
                 toppings: []
             }
+        }))
+    }
+
+    const handleDetailChange = (event) => {
+        const { name, value } = event.target
+        setPizza((prev) => ({
+            ...prev,
+            details: { ...prev.details, [name]: value }
         }))
     }
 
@@ -175,9 +190,46 @@ const EditPizza = () => {
                 </div>
                 <br />
 
+                <label><h3>Size</h3></label>
+                <select name="size" value={pizza.details.size} onChange={handleDetailChange}>
+                    <option value="small">Small</option>
+                    <option value="medium">Medium</option>
+                    <option value="large">Large</option>
+                </select>
+                <br /><br />
+
+                <label><h3>Crust</h3></label>
+                <select name="crust" value={pizza.details.crust} onChange={handleDetailChange}>
+                    <option value="thin">Thin</option>
+                    <option value="thick">Thick</option>
+                    <option value="stuffed">Stuffed</option>
+                    <option value="glutenFree">Gluten-Free</option>
+                </select>
+                <br /><br />
+
+                <label><h3>Sauce</h3></label>
+                <select name="sauce" value={pizza.details.sauce} onChange={handleDetailChange}>
+                    <option value="tomato">Tomato</option>
+                    <option value="white">White</option>
+                    <option value="bbq">BBQ</option>
+                    <option value="pesto">Pesto</option>
+                </select>
+                <br /><br />
+
+                <label><h3>Cheese Level</h3></label>
+                <select name="cheeseLevel" value={pizza.details.cheeseLevel} onChange={handleDetailChange}>
+                    <option value="none">None</option>
+                    <option value="light">Light</option>
+                    <option value="regular">Regular</option>
+                    <option value="extra">Extra</option>
+                </select>
+                <br /><br />
+
                 <label><h3>Custom Instructions</h3></label>
                 <textarea rows='5' cols='50' id='customInstructions' name='customInstructions' value={pizza.customInstructions} onChange={handleInstructionsChange}></textarea>
                 <br />
+
+                <h3>Total: ${calculatePrice(pizza.details)}</h3>
 
                 <input className='submitButton' type='submit' value='Submit' onClick={updatePizza} />
                 <button className='deleteButton' onClick={deletePizza}>Delete</button>

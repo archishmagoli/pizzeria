@@ -1,5 +1,9 @@
+import dotenv from 'dotenv';
+dotenv.config({ path: '../.env' })
+
+console.log(process.env.PGUSER, process.env.PGPASSWORD, process.env.PGHOST)
+
 import { pool } from "./database.js";
-import './dotenv.js';
 
 const createTableQuery = `
     DROP TABLE IF EXISTS pizzeria;

@@ -1,5 +1,7 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import '../css/CreatePizza.css'
+import { calculatePrice } from '../utils/pricing'
 
 const MEAT_TOPPINGS = ['pepperoni', 'sausage', 'bacon', 'chicken', 'ham', 'ground beef', 'anchovies']
 const VEGGIE_TOPPINGS = ['mushrooms', 'peppers', 'olives', 'spinach', 'onions', 'tomatoes', 'jalapeños', 'artichokes']
@@ -11,7 +13,11 @@ const CreatePizza = () => {
         customInstructions: '',
         details: {
             pizzaType: 'custom',
-            toppings: []
+            toppings: [],
+            size: 'medium',
+            crust: 'thin',
+            sauce: 'tomato',
+            cheeseLevel: 'regular'
         }
     })
 
@@ -28,9 +34,18 @@ const CreatePizza = () => {
         setPizza((prev) => ({
             ...prev,
             details: {
+                ...prev.details,
                 pizzaType,
                 toppings: []
             }
+        }))
+    }
+
+    const handleDetailChange = (event) => {
+        const { name, value } = event.target
+        setPizza((prev) => ({
+            ...prev,
+            details: { ...prev.details, [name]: value }
         }))
     }
 
@@ -53,8 +68,33 @@ const CreatePizza = () => {
         return false
     }
 
-    const handleSubmit = (event) => {
+    const navigate = useNavigate()
+
+    const handleSubmit = async (event) => {
         event.preventDefault()
+        try {
+            const response = await fetch('/api/pizzas', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    name: pizza.name,
+                    customInstructions: pizza.customInstructions,
+                    details: pizza.details
+                })
+            })
+
+            if (!response.ok) {
+                const err = await response.json()
+                alert(`Error: ${err.error}`)
+                return
+            }
+
+            await response.json()
+            alert(`Pizza "${pizza.name}" created successfully!`)
+            navigate('/custompizzas')
+        } catch (error) {
+            alert('Sorry, an unexpected error occurred. Please try again.')
+        }
     }
 
     return (
@@ -119,9 +159,46 @@ const CreatePizza = () => {
                 </div>
                 <br />
 
+                <label><h3>Size</h3></label>
+                <select name="size" value={pizza.details.size} onChange={handleDetailChange}>
+                    <option value="small">Small</option>
+                    <option value="medium">Medium</option>
+                    <option value="large">Large</option>
+                </select>
+                <br /><br />
+
+                <label><h3>Crust</h3></label>
+                <select name="crust" value={pizza.details.crust} onChange={handleDetailChange}>
+                    <option value="thin">Thin</option>
+                    <option value="thick">Thick</option>
+                    <option value="stuffed">Stuffed</option>
+                    <option value="glutenFree">Gluten-Free</option>
+                </select>
+                <br /><br />
+
+                <label><h3>Sauce</h3></label>
+                <select name="sauce" value={pizza.details.sauce} onChange={handleDetailChange}>
+                    <option value="tomato">Tomato</option>
+                    <option value="white">White</option>
+                    <option value="bbq">BBQ</option>
+                    <option value="pesto">Pesto</option>
+                </select>
+                <br /><br />
+
+                <label><h3>Cheese Level</h3></label>
+                <select name="cheeseLevel" value={pizza.details.cheeseLevel} onChange={handleDetailChange}>
+                    <option value="none">None</option>
+                    <option value="light">Light</option>
+                    <option value="regular">Regular</option>
+                    <option value="extra">Extra</option>
+                </select>
+                <br /><br />
+
                 <label><h3>Custom Instructions</h3></label>
                 <textarea rows='5' cols='50' id='customInstructions' name='customInstructions' value={pizza.customInstructions} onChange={handleInstructionsChange}></textarea>
                 <br />
+
+                <h3>Total: ${calculatePrice(pizza.details)}</h3>
 
                 <input type='submit' value='Submit' onClick={handleSubmit} />
             </form>

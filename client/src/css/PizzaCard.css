@@ -1,0 +1,54 @@
+.view-pizzas {
+    padding: 2rem 3rem;
+}
+
+.pizza-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.pizza-card {
+    background: rgba(0, 0, 0, 0.75);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+    color: white;
+    transition: transform 0.2s, border-color 0.2s;
+}
+
+.pizza-card:hover {
+    transform: translateY(-3px);
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+.pizza-card h3 {
+    margin-bottom: 0.75rem;
+    font-size: 1.3rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    padding-bottom: 0.5rem;
+}
+
+.pizza-card p {
+    margin: 0.3rem 0;
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.85);
+}
+
+.pizza-card .price {
+    font-size: 1.1rem;
+    color: white;
+    margin-top: 0.75rem;
+}
+
+.pizza-card .card-buttons {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.pizza-card .card-buttons button {
+    flex: 1;
+    margin: 0;
+}
